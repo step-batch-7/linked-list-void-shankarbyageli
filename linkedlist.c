@@ -200,3 +200,52 @@ Status clear_list(List_ptr list) {
   list->length = 0;
   return Success;
 }
+
+List_ptr map(List_ptr list, Mapper mapper) {
+  Node_ptr p_Walk = list->first;
+  List_ptr new_list = create_list();
+  while(p_Walk != NULL) {
+    add_to_list(new_list, (*mapper)(p_Walk->element));
+    p_Walk = p_Walk->next;
+  }
+  return new_list;
+}
+
+List_ptr filter(List_ptr list, Predicate predicate) {
+  Node_ptr p_Walk = list->first;
+  List_ptr new_list = create_list();
+  while(p_Walk != NULL) {
+    if((*predicate)(p_Walk->element)) {
+      add_to_list(new_list, p_Walk->element);
+    }
+    p_Walk = p_Walk->next;
+  }
+  return new_list;
+}
+
+Element reduce(List_ptr list, Element init, Reducer reducer) {
+  Node_ptr p_Walk = list->first;
+  while(p_Walk != NULL) {
+    init = reducer(init, p_Walk->element);
+    p_Walk = p_Walk->next;
+  }
+  return init;
+}
+
+void forEach(List_ptr list, ElementProcessor processor) {
+  Node_ptr p_Walk = list->first;
+  while(p_Walk != NULL) {
+    processor(p_Walk->element);
+    p_Walk = p_Walk->next;
+  }
+}
+
+List_ptr reverse(List_ptr list) {
+  List_ptr reversed_list = create_list();
+  Node_ptr p_Walk = list->first;
+  while(p_Walk != NULL) {
+    add_to_start(reversed_list, p_Walk->element);
+    p_Walk = p_Walk->next;
+  }
+  return reversed_list;
+}
