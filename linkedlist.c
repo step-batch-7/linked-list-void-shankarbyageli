@@ -3,7 +3,7 @@
 #include "linkedlist.h"
 
 List_ptr create_list(void) {
-  List_ptr empty_list = malloc(sizeof(List));
+  List_ptr empty_list = malloc(sizeof(LinkedList));
   if(empty_list == NULL) {
     return NULL;
   }
@@ -78,3 +78,68 @@ Status insert_at(List_ptr list, Element element, int position) {
   list->length++;
   return Success;
 } 
+
+Status add_unique(List_ptr list, Element element, Matcher matcher) {
+  Node_ptr p_Walk = list->first;
+  while(p_Walk != NULL) {
+    if((*matcher)(p_Walk->element, element)) {
+      return Failure;
+    }
+  }
+  return add_to_list(list, element);
+}
+
+Element remove_from_start(List_ptr list) {
+  Node_ptr node_to_free = NULL;
+  if(list->first == NULL) {
+    return NULL;
+  }
+  node_to_free = list->first;
+  if(list->length == 1) {
+    list->last = NULL;
+  }
+  list->first = list->first->next;
+  list->length--;
+  return node_to_free->element;
+}
+
+Element remove_from_end(List_ptr list) {
+  Node_ptr p_Walk, node_to_free;
+  if(list->length == 1) {
+    return remove_from_start(list);
+  }
+  if(list->last == NULL) {
+    return NULL;
+  }
+  p_Walk = list->first;
+  while(p_Walk->next != list->last) {
+    p_Walk = p_Walk->next;
+  }
+  node_to_free = list->last;
+  p_Walk->next = NULL;
+  list->last = p_Walk;
+  list->length--;
+  return node_to_free->element;
+}
+
+Element remove_at(List_ptr list, int position) {
+  Node_ptr p_Walk, node_to_free;
+  if(position < 0 || position >= list->length) {
+    return NULL;
+  }
+  if(position == list->length - 1) {
+    return remove_from_end(list);
+  }
+  if(position == 0) {
+    return remove_from_start(list);
+  }
+  p_Walk = list->first;
+  while(position != 1) {
+    p_Walk = p_Walk->next;
+    position--;
+  }
+  node_to_free = p_Walk->next;
+  p_Walk->next = p_Walk->next->next;
+  list->length--;
+  return node_to_free->element;
+}
