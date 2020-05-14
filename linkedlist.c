@@ -85,6 +85,7 @@ Status add_unique(List_ptr list, Element element, Matcher matcher) {
     if((*matcher)(p_Walk->element, element)) {
       return Failure;
     }
+    p_Walk = p_Walk->next;
   }
   return add_to_list(list, element);
 }
@@ -183,7 +184,6 @@ List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher)
   Node_ptr p_Walk = list->first, previous_node, node_to_free;
   Element removed_element;
   List_ptr new_list = create_list();
-  Status status = Failure;
   while(p_Walk != NULL) {
     if((*matcher)(p_Walk->element, element)) {
       if(p_Walk == list->first) {
