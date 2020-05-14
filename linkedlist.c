@@ -143,3 +143,60 @@ Element remove_at(List_ptr list, int position) {
   list->length--;
   return node_to_free->element;
 }
+
+Element remove_first_occurrence(List_ptr list, Element element, Matcher matcher) {
+  Node_ptr p_Walk = list->first, previous_node, node_to_free;
+  while(p_Walk != NULL) {
+    if((*matcher)(p_Walk->element, element)) {
+      if(p_Walk == list->first) {
+        return remove_from_start(list);
+      }
+      node_to_free = previous_node->next;
+      if(p_Walk == list->last) {
+        previous_node->next = NULL;
+        list->last = previous_node;  
+      } else {
+        previous_node->next = p_Walk->next;
+      }
+      list->length--;
+      return node_to_free->element;
+    }
+    previous_node = p_Walk;
+    p_Walk = p_Walk->next;
+  }
+  return NULL;
+}
+
+List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher) {
+  Node_ptr p_Walk = list->first, previous_node, removed_element;
+  List_ptr new_list = create_list();
+  Status status = Failure;
+  while(p_Walk != NULL) {
+    if((*matcher)(p_Walk->element, element)) {
+      if(p_Walk == list->first) {
+        removed_element = remove_from_start(list);
+      } else {
+        removed_element = previous_node->next->element;
+        if(p_Walk == list->last) {
+          previous_node->next = NULL;
+          list->last = previous_node;
+        } else {
+          previous_node->next = p_Walk->next;
+        }
+        p_Walk = previous_node;
+        list->length--;
+      }
+      add_to_list(new_list, removed_element);
+    }
+    previous_node = p_Walk;
+    p_Walk = p_Walk->next;
+  }
+  return new_list;
+}
+
+Status clear_list(List_ptr list) {
+  list->last = NULL;
+  list->first = NULL;
+  list->length = 0;
+  return Success;
+}
