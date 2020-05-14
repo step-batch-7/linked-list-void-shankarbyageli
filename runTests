@@ -1,0 +1,5 @@
+#! /bin/bash
+
+gcc test/test_linkedlist.c testLib/mocha.c linkedlist.c
+./a.out
+rm a.out

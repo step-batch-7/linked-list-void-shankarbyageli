@@ -181,18 +181,17 @@ Element remove_first_occurrence(List_ptr list, Element element, Matcher matcher)
 }
 
 List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher) {
-  Node_ptr p_Walk = list->first, previous_node, node_to_free;
+  Node_ptr p_Walk = list->first, previous_node, node_to_free, next_node;
   Element removed_element;
   List_ptr new_list = create_list();
   while(p_Walk != NULL) {
+    next_node = p_Walk->next;
     if((*matcher)(p_Walk->element, element)) {
       if(p_Walk == list->first) {
         removed_element = remove_from_start(list);
-        add_to_list(new_list, removed_element);
-        p_Walk = list->first;
-        continue;
+        next_node = list->first;
       } else {
-        node_to_free = previous_node->next;
+        node_to_free = p_Walk;
         removed_element = node_to_free->element;
         if(p_Walk == list->last) {
           previous_node->next = NULL;
@@ -207,7 +206,7 @@ List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher)
       add_to_list(new_list, removed_element);
     }
     previous_node = p_Walk;
-    p_Walk = p_Walk->next;
+    p_Walk = next_node;
   }
   return new_list;
 }
