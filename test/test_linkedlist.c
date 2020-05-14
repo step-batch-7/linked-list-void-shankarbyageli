@@ -11,6 +11,32 @@ Status is_int_equal(Element e1, Element e2) {
   return *(int *)e1 == *(int *)e2;
 }
 
+Status are_equal(List_ptr list, int *array) {
+  Node_ptr p_Walk = list->first;
+  for(size_t i = 0; i < list->length; i++) {
+    if(array[i] != *(int *)p_Walk->element) {
+      return Failure;
+    }
+    p_Walk = p_Walk->next;
+  }
+  return Success;
+}
+
+Status is_even(Element element) {
+  return *(int *)element % 2 == 0;
+}
+
+Element add(Element num1, Element num2) {
+  *(int *)num1 = *(int *)num1 + *(int *)num2;
+  return num1;
+}
+
+Element multiply_by_two(Element element) {
+  Element new_element = malloc(sizeof(int));
+  *(int *)new_element = *(int *)element * 2;
+  return new_element;
+}
+
 __testStatus create_empty_list() {
   List_ptr list = create_list();
   if(list->first == NULL && list->last == NULL && list->length == 0) {
@@ -255,6 +281,104 @@ __testStatus clear_list_with_elements() {
   return __Failure;
 }
 
+__testStatus map_multiply_by_two() {
+  List_ptr list = create_list();
+  for(size_t i = 0; i < 4; i++) {
+    add_to_list(list, create_element(i + 1));
+  }
+  int mapping_result[] = {2, 4, 6, 8};
+  List_ptr mapped_list = map(list, &multiply_by_two);
+  if(mapped_list->length == 4 && are_equal(mapped_list, mapping_result)) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus map_empty_list() {
+  List_ptr list = create_list();
+  List_ptr mapped_list = map(list, &multiply_by_two);
+  if(mapped_list->length == 0) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus filter_even_numbers() {
+  List_ptr list = create_list();
+  for(size_t i = 0; i < 4; i++) {
+    add_to_list(list, create_element(i + 1));
+  }
+  int result[] = {2, 4};
+  List_ptr filtered_list = filter(list, &is_even);
+  if(filtered_list->length == 2 && are_equal(filtered_list, result)) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus filter_empty_array() {
+  List_ptr list = create_list();
+  List_ptr filtered_list = filter(list, &is_even);
+  if(filtered_list->length == 0) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus filter_array_returning_empty() {
+  List_ptr list = create_list();
+  add_to_list(list, create_element(1));
+  List_ptr filtered_list = filter(list, &is_even);
+  if(filtered_list->length == 0) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus reduce_empty_array() {
+  List_ptr list = create_list();
+  Element result = reduce(list, create_element(1), &add);
+  if(*(int *)result == 1) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus sum_of_all() {
+  List_ptr list = create_list();
+  for(size_t i = 0; i < 4; i++) {
+    add_to_list(list, create_element(i + 1));
+  }
+  Element result = reduce(list, create_element(0), &add);
+  if(*(int *)result == 10) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus reverse_empty_list() {
+  List_ptr list = create_list();
+  List_ptr reversed = reverse(list);
+  if(reversed->length == 0) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+__testStatus reverse_given_list() {
+  List_ptr list = create_list();
+  for(size_t i = 0; i < 4; i++) {
+    add_to_list(list, create_element(i + 1));
+  }
+  List_ptr reversed = reverse(list);
+  int result[] = {4, 3, 2, 1};
+  if(reversed->length == 4 && are_equal(reversed ,result)) {
+    return __Success;
+  }
+  return __Failure;
+}
+
+
 int main(void) {
   describe("create list");
   test_case("should create a empty list", create_empty_list());
@@ -303,6 +427,23 @@ int main(void) {
   describe("clear the list");
   test_case("should not clear if list is empty", clear_empty_list());
   test_case("should remove all elements from list", clear_list_with_elements());
+
+  describe("map function");
+  test_case("should return array of same length as source array with mapped values", map_multiply_by_two());
+  test_case("should return empty array if source array is empty", map_empty_list());
+
+  describe("filter function");
+  test_case("should return array of filtered values based on predicate", filter_even_numbers());
+  test_case("should return empty array if src is empty", filter_empty_array());
+  test_case("should return empty array if filtered values are 0", filter_array_returning_empty());
+
+  describe("reduce function");
+  test_case("should return initial value if src array is empty", reduce_empty_array());
+  test_case("should return sum of all numbers in src array", sum_of_all());
+
+  describe("reverse function");
+  test_case("should return empty list if src list is empty", reverse_empty_list());
+  test_case("should return reversed list of given list", reverse_given_list());
 
   return 0;
 }
