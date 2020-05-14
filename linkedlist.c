@@ -90,21 +90,25 @@ Status add_unique(List_ptr list, Element element, Matcher matcher) {
 }
 
 Element remove_from_start(List_ptr list) {
-  Node_ptr node_to_free = NULL;
+  Node_ptr node_to_free;
+  Element removed_element;
   if(list->first == NULL) {
     return NULL;
   }
   node_to_free = list->first;
+  removed_element = node_to_free->element;
   if(list->length == 1) {
     list->last = NULL;
   }
   list->first = list->first->next;
   list->length--;
-  return node_to_free->element;
+  free(node_to_free);
+  return removed_element;
 }
 
 Element remove_from_end(List_ptr list) {
   Node_ptr p_Walk, node_to_free;
+  Element removed_element;
   if(list->length == 1) {
     return remove_from_start(list);
   }
@@ -116,14 +120,17 @@ Element remove_from_end(List_ptr list) {
     p_Walk = p_Walk->next;
   }
   node_to_free = list->last;
+  removed_element = node_to_free->element;
   p_Walk->next = NULL;
   list->last = p_Walk;
   list->length--;
-  return node_to_free->element;
+  free(node_to_free);
+  return removed_element;
 }
 
 Element remove_at(List_ptr list, int position) {
   Node_ptr p_Walk, node_to_free;
+  Element removed_element;
   if(position < 0 || position >= list->length) {
     return NULL;
   }
@@ -139,13 +146,16 @@ Element remove_at(List_ptr list, int position) {
     position--;
   }
   node_to_free = p_Walk->next;
+  removed_element = node_to_free->element;
   p_Walk->next = p_Walk->next->next;
   list->length--;
-  return node_to_free->element;
+  free(node_to_free);
+  return removed_element;
 }
 
 Element remove_first_occurrence(List_ptr list, Element element, Matcher matcher) {
   Node_ptr p_Walk = list->first, previous_node, node_to_free;
+  Element removed_element;
   while(p_Walk != NULL) {
     if((*matcher)(p_Walk->element, element)) {
       if(p_Walk == list->first) {
@@ -159,7 +169,9 @@ Element remove_first_occurrence(List_ptr list, Element element, Matcher matcher)
         previous_node->next = p_Walk->next;
       }
       list->length--;
-      return node_to_free->element;
+      removed_element = node_to_free->element;
+      free(node_to_free);
+      return removed_element;
     }
     previous_node = p_Walk;
     p_Walk = p_Walk->next;
@@ -168,7 +180,8 @@ Element remove_first_occurrence(List_ptr list, Element element, Matcher matcher)
 }
 
 List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher) {
-  Node_ptr p_Walk = list->first, previous_node, removed_element;
+  Node_ptr p_Walk = list->first, previous_node, node_to_free;
+  Element removed_element;
   List_ptr new_list = create_list();
   Status status = Failure;
   while(p_Walk != NULL) {
@@ -176,7 +189,8 @@ List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher)
       if(p_Walk == list->first) {
         removed_element = remove_from_start(list);
       } else {
-        removed_element = previous_node->next->element;
+        node_to_free = previous_node->next;
+        removed_element = node_to_free->element;
         if(p_Walk == list->last) {
           previous_node->next = NULL;
           list->last = previous_node;
@@ -185,6 +199,7 @@ List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher)
         }
         p_Walk = previous_node;
         list->length--;
+        free(node_to_free);
       }
       add_to_list(new_list, removed_element);
     }
@@ -195,6 +210,12 @@ List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher)
 }
 
 Status clear_list(List_ptr list) {
+  Node_ptr p_Walk = list->first, node_to_free;
+  while(p_Walk != NULL) {
+    node_to_free = p_Walk;
+    p_Walk = p_Walk->next;
+    free(node_to_free);
+  }
   list->last = NULL;
   list->first = NULL;
   list->length = 0;
