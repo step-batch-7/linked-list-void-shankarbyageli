@@ -64,4 +64,5 @@ List_ptr remove_all_occurrences(List_ptr, Element element, Matcher matcher); // 
 Status add_unique(List_ptr list, Element element, Matcher matcher);
 
 Status clear_list(List_ptr);
+
 #endif
