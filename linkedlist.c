@@ -188,6 +188,7 @@ List_ptr remove_all_occurrences(List_ptr list, Element element, Matcher matcher)
     if((*matcher)(p_Walk->element, element)) {
       if(p_Walk == list->first) {
         removed_element = remove_from_start(list);
+        p_Walk = list->first;
       } else {
         node_to_free = previous_node->next;
         removed_element = node_to_free->element;
